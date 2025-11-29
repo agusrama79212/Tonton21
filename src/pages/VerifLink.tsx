@@ -12,7 +12,7 @@ export const VerifLink: React.FC = () => {
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   const adUrls = [
-    'https://agungwandev.com',
+    'https://otieu.com/4/10251220',
   ];
 
   const getRandomAdUrl = () => {

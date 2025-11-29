@@ -37,7 +37,7 @@ export function PlayVideo() {
   const [copied, setCopied] = useState(false);
 
   const randomUrls = [
-    'https://agungwandev.com',
+    'https://otieu.com/4/10251220',
   ];
 
   useEffect(() => {
