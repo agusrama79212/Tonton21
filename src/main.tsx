@@ -5,11 +5,9 @@ import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Contact } from "./pages/Contact.tsx";
-import { PlayVideo } from "./pages/PlayVideo.tsx";
-import { Download } from "./pages/Download.tsx";
 import Redirect from "./pages/Redirect.tsx";
 import { VerifLink } from "./pages/VerifLink.tsx";
-import { Home } from "./pages/Home.tsx"; // 1. Impor komponen Home yang baru
+import { Home } from "./pages/Home.tsx";
 
 const router = createBrowserRouter([
   {
@@ -21,52 +19,20 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: ":id",
-        element: <VerifLink />,
-      },
-      {
-        path: "e/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "d/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "v/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "v/",
-        element: <VerifLink />,
-      },
-      {
-        path: "f/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "play/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "view/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "share/:id",
-        element: <PlayVideo />,
-      },
-      {
-        path: "download",
-        element: <Download />,
-      },
-      {
         path: "contact",
         element: <Contact />,
       },
       {
         path: "s/:id",
         element: <Redirect />,
+      },
+      {
+        path: "v",
+        element: <VerifLink />,
+      },
+      {
+        path: ":id",
+        element: <VerifLink />,
       },
     ],
   },

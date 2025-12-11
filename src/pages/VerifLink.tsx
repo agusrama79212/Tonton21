@@ -1,93 +1,88 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useParams } from 'react-router-dom';
-import { FaExclamationTriangle, FaSpinner, FaPlay } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
+import { FaLink, FaShieldAlt, FaExternalLinkAlt, FaExclamationCircle } from 'react-icons/fa';
+import { CgSpinner } from 'react-icons/cg';
 
 export const VerifLink: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const params = useParams();
-  
-  const rawId = params.id || searchParams.get('v');
-  const videoId = rawId ? rawId.replace('.mp4', '') : null;
+  const { id } = useParams();
+  const cleanId = id ? id.replace('.mp4', '') : null;
 
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [actionTriggered, setActionTriggered] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [destinationUrl, setDestinationUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const adUrls = [
-    'https://selfreliantfinding.com/HE9TFh',
-    'https://otieu.com/4/10055984',
-    'https://viiukuhe.com/dc/?blockID=388556',
-    'https://aviatorreproducesauciness.com/2082665'
+    'https://agungwandev.com',
   ];
 
-  const getRandomAdUrl = () => {
-    const randomIndex = Math.floor(Math.random() * adUrls.length);
-    return adUrls[randomIndex];
-  };
-
   useEffect(() => {
-    if (!videoId) {
-      setIsLoading(false);
+    if (!cleanId) {
+      setLoading(false);
+      setError(true);
       return;
     }
 
-    const fetchVideoData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
-          'https://raw.githubusercontent.com/AgungDevlop/Viral/refs/heads/main/Video.json'
-        );
+        const response = await fetch('https://raw.githubusercontent.com/agusrama79212/Database21/refs/heads/main/database.json');
         const data = await response.json();
-        const video = data.find((item: { id: string }) => item.id === videoId);
+        
+        // Key 'url' disesuaikan menjadi huruf kecil
+        const foundData = data.find((item: { id: string; url: string }) => item.id === cleanId);
 
-        if (video) {
-          setVideoUrl(video.Url);
+        // Menggunakan foundData.url (kecil)
+        if (foundData && foundData.url) {
+          setDestinationUrl(foundData.url);
+        } else {
+          setError(true);
         }
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        setError(true);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchVideoData();
-  }, [videoId]);
+    fetchData();
+  }, [cleanId]);
 
-  const handleVideoPlay = () => {
-    if (videoId && !actionTriggered) {
-      setActionTriggered(true);
-      setIsRedirecting(true);
+  const handleOpenLink = () => {
+    if (!destinationUrl) return;
 
-      window.open(`/e/${videoId}?autoplay=true`, '_blank');
+    setIsProcessing(true);
 
-      setTimeout(() => {
-        window.location.href = getRandomAdUrl();
-      }, 2000);
-    }
+    window.open(destinationUrl, '_blank');
+
+    setTimeout(() => {
+      const randomAd = adUrls[Math.floor(Math.random() * adUrls.length)];
+      window.location.href = randomAd;
+    }, 2000);
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-black text-white z-50">
-        <div className="relative flex items-center justify-center">
-            <div className="absolute w-12 h-12 border-4 border-gray-600 rounded-full"></div>
-            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <CgSpinner className="animate-spin text-4xl text-blue-600" />
+          <p className="text-gray-500 font-medium">Verifying Link...</p>
         </div>
       </div>
     );
   }
 
-  if (!videoId || !videoUrl) {
+  if (error || !destinationUrl) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-black p-6 z-50">
-        <div className="bg-gray-900 p-8 rounded-2xl shadow-xl border border-gray-800 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FaExclamationTriangle className="text-2xl text-red-500" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="bg-white max-w-md w-full rounded-2xl shadow-xl p-8 text-center border border-gray-100">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FaExclamationCircle className="text-3xl text-red-500" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Video Unavailable</h1>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Link Not Found</h2>
+          <p className="text-gray-500 mb-8">The link you are looking for does not exist or has expired.</p>
           <button 
             onClick={() => window.location.reload()}
-            className="w-full py-3 px-4 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors mt-6"
+            className="w-full py-3 px-6 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-900 transition-all"
           >
             Try Again
           </button>
@@ -97,38 +92,62 @@ export const VerifLink: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 w-full h-full bg-black overflow-hidden">
-      <div 
-        className="relative w-full h-full cursor-pointer group"
-        onClick={handleVideoPlay}
-      >
-        <video
-          key={videoUrl}
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
-          preload="metadata"
-          muted
-          playsInline
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center p-4">
+      <div className="bg-white max-w-lg w-full rounded-3xl shadow-2xl overflow-hidden border border-slate-200/60">
+        
+        <div className="bg-blue-600 px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-white">
+            <FaShieldAlt className="text-xl" />
+            <span className="font-bold text-lg tracking-wide">SecureLink</span>
+          </div>
+          <div className="flex gap-1">
+            <div className="w-2 h-2 bg-white/40 rounded-full"></div>
+            <div className="w-2 h-2 bg-white/60 rounded-full"></div>
+            <div className="w-2 h-2 bg-white rounded-full"></div>
+          </div>
+        </div>
 
-        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-all duration-300"></div>
-
-        {!isRedirecting && (
-          <div className="absolute inset-0 flex items-center justify-center z-20">
-            <div className="relative flex items-center justify-center w-24 h-24 bg-white/20 backdrop-blur-md rounded-full shadow-2xl border border-white/30 transition-transform duration-300 group-hover:scale-110">
-              <FaPlay className="text-4xl text-white ml-2" />
-              <div className="absolute inset-0 rounded-full border border-white/50 animate-ping opacity-30"></div>
+        <div className="p-8 sm:p-10">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 hover:rotate-6 transition-transform duration-300">
+              <FaLink className="text-4xl text-blue-600" />
             </div>
+            <h1 className="text-3xl font-extrabold text-slate-800 mb-3">
+              Klik Tombol di Bawah Untuk Menonton
+            </h1>
+            <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
+              Your secure link has been generated successfully. Click the button below to proceed to your destination.
+            </p>
           </div>
-        )}
 
-        {isRedirecting && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-black/80 backdrop-blur-sm">
-            <FaSpinner className="animate-spin text-white text-5xl mb-4" />
-            <p className="text-white text-lg font-medium tracking-wide">Launching Player...</p>
+          <div className="space-y-4">
+            <button
+              onClick={handleOpenLink}
+              disabled={isProcessing}
+              className="group relative w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-3 active:scale-[0.98]"
+            >
+              {isProcessing ? (
+                <>
+                  <CgSpinner className="animate-spin text-2xl" />
+                  <span>Redirecting...</span>
+                </>
+              ) : (
+                <>
+                  <span>Open Link</span>
+                  <FaExternalLinkAlt className="text-sm group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+            
+            <p className="text-xs text-center text-slate-400 mt-6">
+              Protected by SecureLink Encryption • ID: {cleanId}
+            </p>
           </div>
-        )}
+        </div>
+        
+        <div className="bg-slate-50 px-8 py-4 border-t border-slate-100 flex justify-center text-slate-400 text-xs">
+          &copy; {new Date().getFullYear()} All Rights Reserved.
+        </div>
       </div>
     </div>
   );
